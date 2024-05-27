@@ -15,7 +15,18 @@ export class PaymentService {
       where: { id },
     });
   }
+  async delete(id: Payment['id']): Promise<number> {
+    return this.PaymentModel.destroy({
+      where: { id },
+    });
+  }
   async createPayment(payment: Partial<Payment>): Promise<Payment> {
     return this.PaymentModel.create(payment);
+  }
+  async update(
+    payment: Partial<Payment>,
+    id: Payment['id'],
+  ): Promise<[number]> {
+    return this.PaymentModel.update(payment, { where: { id } });
   }
 }

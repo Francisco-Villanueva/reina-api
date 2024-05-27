@@ -6,6 +6,8 @@ export const PaymentZodSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   phone: z.string(),
+  dni: z.string(),
+  EventId: z.string(),
   method: z.string().optional(),
   paymentDate: z.string().optional(),
   amount: z.number().optional(),

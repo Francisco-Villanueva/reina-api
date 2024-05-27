@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import { databaseConfig } from './database.config';
 import { Payment } from 'src/payment/schema/payment.model';
+import { Event } from 'src/event/schema/event.model';
 
 export const databaseProviders = [
   {
@@ -24,7 +25,10 @@ export const databaseProviders = [
         dialect: 'postgres',
         logging: false,
       });
-      sequelize.addModels([Payment]);
+      sequelize.addModels([Event, Payment]);
+
+      Event.hasMany(Payment);
+      Payment.belongsTo(Event);
 
       await sequelize.sync({ alter: true });
       return sequelize;

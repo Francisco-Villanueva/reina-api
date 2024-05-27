@@ -15,13 +15,13 @@ export class Payment extends Model<Payment> {
   @PrimaryKey
   @Column({
     type: DataType.UUID,
-    defaultValue: DataType.UUIDV4, // Esto generará automáticamente un UUID
+    defaultValue: DataType.UUIDV4,
   })
   id: string;
 
   @Column({
     type: DataType.ENUM,
-    values: Object.values(PAYMENT_STATUSES), // Asegúrate de que `PaymentStatus` esté bien definido
+    values: Object.values(PAYMENT_STATUSES),
     allowNull: false,
   })
   status: PaymentStatus;
@@ -48,19 +48,27 @@ export class Payment extends Model<Payment> {
   phone: string;
 
   @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  amount: number;
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  dni: string;
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  confirmAsist: boolean;
+  @Column({
     type: DataType.STRING,
   })
   method: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   paymentDate: string;
-
-  @Column({
-    type: DataType.FLOAT,
-    allowNull: false,
-  })
-  amount: number;
 }
