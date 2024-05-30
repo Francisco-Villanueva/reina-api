@@ -66,7 +66,10 @@ export class PaymentController {
   async createPayment(
     @Body() { payment, time }: { payment: CreatePaymentDto; time: string },
   ) {
-    const parsedPayment = { ...payment, quantity: parseInt(payment.quantity) };
+    const parsedPayment = {
+      ...payment,
+      quantity: parseInt(payment.quantity),
+    };
     try {
       const event = await this.eventService.getById(payment.EventId);
       if (!event) throw new UnauthorizedException('Event Not Found');
@@ -78,6 +81,7 @@ export class PaymentController {
 
       const payemntDetails = await this.paymentService.createPayment({
         ...parsedPayment,
+        amount: payment.amount * parsedPayment.quantity,
         time,
       });
 
