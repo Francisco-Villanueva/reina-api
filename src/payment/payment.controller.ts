@@ -78,7 +78,7 @@ export class PaymentController {
         throw new UnauthorizedException(
           'No hay mas tickets disponibles para el evento y horario elegidos!',
         );
-      if (selectedEventSlot.availables - parsedPayment.quantity < 1)
+      if (selectedEventSlot.availables - parsedPayment.quantity < 0)
         throw new UnauthorizedException(
           'La cantidad de entradas, supera la cantidad disponible!',
         );
@@ -99,6 +99,8 @@ export class PaymentController {
         return slot;
       });
 
+      if (parsedPayment.status === 'Approved') {
+      }
       event.event = updatedEvent;
       await event.save();
 
@@ -129,8 +131,10 @@ export class PaymentController {
         return slot;
       });
 
-      event.event = updatedEvent;
-      await event.save();
+      if (payemntDetails.status === 'Approved') {
+        event.event = updatedEvent;
+        await event.save();
+      }
 
       return {
         message: 'Event updated',
