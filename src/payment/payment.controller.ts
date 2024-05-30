@@ -78,6 +78,10 @@ export class PaymentController {
         throw new UnauthorizedException(
           'No hay mas tickets disponibles para el evento y horario elegidos!',
         );
+      if (selectedEventSlot.availables - parsedPayment.quantity < 1)
+        throw new UnauthorizedException(
+          'La cantidad de entradas, supera la cantidad disponible!',
+        );
 
       const payemntDetails = await this.paymentService.createPayment({
         ...parsedPayment,
