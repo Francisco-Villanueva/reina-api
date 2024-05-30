@@ -66,16 +66,26 @@ export class PaymentController {
   async createPayment(
     @Body() { payment, time }: { payment: CreatePaymentDto; time: string },
   ) {
+    const parsedPayment = { ...payment, quantity: parseInt(payment.quantity) };
     try {
       const event = await this.eventService.getById(payment.EventId);
-      if (!event) {
-        throw new UnauthorizedException('Event Not Found');
-      }
+      if (!event) throw new UnauthorizedException('Event Not Found');
+      const selectedEventSlot = event.event.filter((e) => e.time === time)[0];
+      if (selectedEventSlot.availables < 1)
+        throw new UnauthorizedException(
+          'No hay mas tickets disponibles para el evento y horario elegidos!',
+        );
+
+      const payemntDetails = await this.paymentService.createPayment({
+        ...parsedPayment,
+        time,
+      });
+
       const updatedEvent = event.event.map((slot) => {
         if (slot.time.trim() === time.trim()) {
           return {
             ...slot,
-            availables: slot.availables - 1,
+            availables: slot.availables - parsedPayment.quantity,
           };
         }
         return slot;
@@ -83,9 +93,41 @@ export class PaymentController {
 
       event.event = updatedEvent;
       await event.save();
-      const payemntDetails = await this.paymentService.createPayment(payment);
 
       return payemntDetails;
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+  }
+  @Post('/restore')
+  async refactorEvent(@Body() { paymentId }: { paymentId: string }) {
+    try {
+      const payemntDetails = await this.paymentService.getById(paymentId);
+      if (!payemntDetails) {
+        throw new UnauthorizedException('Payment details Not Found');
+      }
+      const event = await this.eventService.getById(payemntDetails.EventId);
+      if (!event) {
+        throw new UnauthorizedException('Event Not Found');
+      }
+
+      const updatedEvent = event.event.map((slot) => {
+        if (slot.time.trim() === payemntDetails.time.trim()) {
+          return {
+            ...slot,
+            availables: slot.availables + payemntDetails.quantity,
+          };
+        }
+        return slot;
+      });
+
+      event.event = updatedEvent;
+      await event.save();
+
+      return {
+        message: 'Event updated',
+        event,
+      };
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }

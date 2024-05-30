@@ -18,6 +18,10 @@ export class Payment extends Model<Payment> {
     defaultValue: DataType.UUIDV4,
   })
   id: string;
+  @Column({
+    type: DataType.UUID,
+  })
+  EventId: string;
 
   @Column({
     type: DataType.ENUM,
@@ -46,6 +50,17 @@ export class Payment extends Model<Payment> {
     allowNull: false,
   })
   phone: string;
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  time: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  quantity: number;
 
   @Column({
     type: DataType.FLOAT,
