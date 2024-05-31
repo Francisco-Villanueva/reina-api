@@ -33,4 +33,6 @@ export class Event extends Model<Event> {
   event: EventDetails[];
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   description: string[];
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isPrivate: boolean;
 }
