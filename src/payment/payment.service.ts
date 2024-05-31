@@ -34,9 +34,9 @@ export class PaymentService {
     return this.PaymentModel.update(payment, { where: { id } });
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async updatePendingPayments(): Promise<void> {
-    const twoMinutesAgo = new Date(Date.now() - 10 * 1000);
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
     const pendingPayments = await this.PaymentModel.findAll({
       where: {
         status: 'Pending',
