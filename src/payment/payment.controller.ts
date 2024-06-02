@@ -109,6 +109,49 @@ export class PaymentController {
       throw new UnauthorizedException(error.message);
     }
   }
+  @Post('/aprovePayment')
+  async aprovePayment(
+    @Body() { paymentId, time }: { paymentId: string; time: string },
+  ) {
+    const paymentInfo = await this.paymentService.getById(paymentId);
+
+    try {
+      const event = await this.eventService.getById(paymentInfo.EventId);
+      if (!event) throw new UnauthorizedException('Event Not Found');
+      const selectedEventSlot = event.event.filter(
+        (e) => e.time === paymentInfo.time,
+      )[0];
+      if (selectedEventSlot.availables < 1)
+        throw new UnauthorizedException(
+          'No hay mas tickets disponibles para el evento y horario elegidos!',
+        );
+      if (selectedEventSlot.availables - paymentInfo.quantity < 0)
+        throw new UnauthorizedException(
+          'La cantidad de entradas, supera la cantidad disponible!',
+        );
+
+      const updatedEvent = event.event.map((slot) => {
+        if (slot.time.trim() === paymentInfo.time.trim()) {
+          return {
+            ...slot,
+            availables: slot.availables - paymentInfo.quantity,
+          };
+        }
+        return slot;
+      });
+
+      paymentInfo.update({
+        status: 'Approved',
+      });
+      event.event = updatedEvent;
+      await paymentInfo.save();
+      await event.save();
+
+      return paymentInfo;
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+  }
   @Post('/restore')
   async refactorEvent(@Body() { paymentId }: { paymentId: string }) {
     try {
